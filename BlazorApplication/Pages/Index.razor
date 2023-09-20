@@ -1,0 +1,270 @@
+﻿@page "/"
+@using BlazorApplication.DTO;
+@using BlazorApplication.Services;
+@inject CustomerTableService CustomService;
+@inject ProductTableService ProductService;
+<style >
+    .my-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        .my-table th,
+        .my-table td {
+            border: 1px solid #8A2BE2
+            ;
+            padding: 8px;
+        }
+
+        .my-table th {
+            background-color: #191970;
+            text-align: center;
+        }
+
+    thead th {
+        color: white;
+    }
+
+    .styled-input {
+        width: 15%;
+        padding: 8px;
+        border: 1px solid #8A2BE2;
+        border-radius: 4px;
+        color: #191970;
+    }
+
+        .styled-input:focus {
+            outline: none;
+            border-color: #000;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+        }
+
+    .styled-button {
+        padding: 8px 16px;
+        border-radius: 4px;
+        border: 1px solid #8A2BE2;
+        color: #8A2BE2;
+        background-color: transparent;
+        transition: all 0.3s ease;
+    }
+
+        .styled-button:hover {
+            background-color: #8A2BE2;
+            color: #fff;
+        }
+
+        .styled-button:checked {
+            background-color: #8A2BE2;
+            color: #fff;
+</style>
+
+<center>
+<h3>Your Customers</h3>
+<br />
+<table class="my-table">
+    <thead >
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Age</th>
+            <th>Product ID</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var custom in customers)
+        {
+            <tr @onclick="()=>SetUpdateValue1(custom)">
+                <td>@custom.CustomerID</td>
+                <td>@custom.Cus_Name</td>
+                <td>@custom.Cus_Age</td>
+                <td>@custom.Cus_Product</td>
+            </tr>
+        }
+    </tbody>
+</table>
+<br />
+<h4>bleas enter you data here </h4>
+<h6>or click in the table to select the data then click to the button you nead</h6>
+
+<input type="text" class="styled-input" @bind="customerId" placeholder="Customer ID" />
+<input type="text" class="styled-input"  @bind="customerName" placeholder="Customer Name" />
+<input type="number" class="styled-input"  @bind="customerAge" placeholder="Customer Age" />
+<input type="text" class="styled-input"  @bind="customerProduct" placeholder="Product ID" />
+<br />
+<br />
+
+<div class="btn-group" role="group" aria-label="Basic radio toggle button group">
+    <input type="radio" class="btn-check" name="btnradio" id="btnradio1" autocomplete="off" @onclick='() => AddCustomer()'>
+    <label class="btn btn-outline-primary styled-button" for="btnradio1">Add New</label>
+   
+    <input type="radio" class="btn-check" name="btnradio" id="btnradio2" autocomplete="off" @onclick='() => UpdateCustomer()'>
+    <label class="btn btn-outline-primary styled-button" for="btnradio2">Update</label>
+
+    <input type="radio" class="btn-check" name="btnradio" id="btnradio3" autocomplete="off" @onclick='() => DeleteCustomer()'>
+    <label class="btn btn-outline-primary styled-button" for="btnradio3">Delete</label>
+</div>
+    <br /><br />
+    <h3>Your Products</h3>
+    <br />
+    <table class="my-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Quantity</th>
+                <th>Price</th>
+                <th>Color</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var product in products)
+            {
+                <tr @onclick="()=>SetUpdateValue2(product)">
+                    <td>@product.ProductID</td>
+                    <td>@product.ProductName</td>
+                    <td>@product.ProQuantity</td>
+                    <td>@product.ProPrice</td>
+                    <td>@product.ProColor</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <br />
+    <h4>bleas enter you data here </h4>
+    <h6>or click in the table to select the data then click to the button you nead</h6>
+
+    
+    <input type="text" class="styled-input" @bind="ProductName" placeholder="Product Name" />
+    <input type="number" class="styled-input" @bind="ProQuantity" placeholder="Product Quantity" />
+    <input type="text" class="styled-input" @bind="ProPrice" placeholder="Product Price" />
+    <input type="text" class="styled-input" @bind="ProColor" placeholder="Product Color" />
+    <br />
+    <br />
+
+    <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
+        <input type="radio" class="btn-check2" name="btnradio" id="btnradio11" autocomplete="off" @onclick='() => AddProduct()'>
+        <label class="btn btn-outline-primary styled-button" for="btnradio11">Add New</label>
+
+        <input type="radio" class="btn-check2" name="btnradio" id="btnradio22" autocomplete="off" @onclick='() => UpdateProduct()'>
+        <label class="btn btn-outline-primary styled-button" for="btnradio22">Update</label>
+
+        <input type="radio" class="btn-check2" name="btnradio" id="btnradio33" autocomplete="off" @onclick='() => DeleteProduct()'>
+        <label class="btn btn-outline-primary styled-button" for="btnradio33">Delete</label>
+    </div>
+    <br /><br />
+</center>
+
+@code {
+    List<CustomerTableDTO> customers = new();
+    List<ProductTableDTO> products = new();
+
+    protected override void OnInitialized()
+    {
+        customers = CustomService.GetAllCustomers();
+        products = ProductService.GetAllProducts();
+    }
+
+    private int customerId;
+    private string customerName;
+    private int? customerAge;
+    private int? customerProduct;
+
+    private int ProductID;
+    private string ProductName;
+    private int? ProQuantity;
+    private int? ProPrice;
+    private string? ProColor;
+    private void AddCustomer()
+    {
+        CustomerTableDTO newCustomer = new CustomerTableDTO()
+            {
+                CustomerID = customerId,
+                Cus_Name = customerName,
+                Cus_Age = customerAge,
+                Cus_Product = customerProduct
+            };
+
+        CustomService.AddCustomer(newCustomer);
+        customers = CustomService.GetAllCustomers();
+        StateHasChanged();
+
+
+    }
+    private void AddProduct()
+    {
+        ProductTableDTO newProduct = new ProductTableDTO()
+            {
+                ProductID = ProductID ,
+                ProductName = ProductName,
+                ProQuantity = ProQuantity,
+                ProPrice = ProPrice,
+                ProColor = ProColor
+            };
+
+        ProductService.AddProduct(newProduct);
+        products = ProductService.GetAllProducts();
+        StateHasChanged();
+
+
+    }
+  
+    private void SetUpdateValue1(CustomerTableDTO u )
+    {
+        customerId = u.CustomerID;
+        customerName = u.Cus_Name;
+        customerAge = u.Cus_Age;
+        customerProduct = u.Cus_Product;
+      
+    }
+    private void SetUpdateValue2( ProductTableDTO p)
+    {
+     
+        ProductID = p.ProductID;
+        ProductName = p.ProductName;
+        ProQuantity = p.ProQuantity;
+        ProPrice = p.ProPrice;
+        ProColor = p.ProColor;
+    }
+    private void UpdateProduct()
+    {
+        ProductTableDTO updatedProduct = new ProductTableDTO()
+            {
+                ProductID = ProductID,
+                ProductName = ProductName,
+                ProQuantity = ProQuantity,
+                ProPrice = ProPrice,
+                ProColor = ProColor,
+                
+            };
+
+        ProductService.UpdateProduct(updatedProduct);
+        products = ProductService.GetAllProducts();
+        StateHasChanged();
+    }
+    private void UpdateCustomer()
+    {
+        CustomerTableDTO updatedCustomer = new CustomerTableDTO()
+            {
+                CustomerID = customerId,
+                Cus_Name = customerName,
+                Cus_Age = customerAge,
+                Cus_Product = customerProduct
+            };
+
+         CustomService.UpdateCustomer(updatedCustomer);
+        customers = CustomService.GetAllCustomers();
+        StateHasChanged();
+    }
+    private void DeleteProduct()
+    {
+        string result = ProductService.DeleteProduct(ProductID);
+        products = ProductService.GetAllProducts();
+        StateHasChanged();
+    }
+    private void DeleteCustomer()
+    {
+        string result = CustomService.DeleteCustomer(customerId);
+        customers = CustomService.GetAllCustomers();
+        StateHasChanged();
+    }
+}

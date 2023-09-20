@@ -1,0 +1,40 @@
+﻿@page "/EditMyTables"
+@using BlazorApplication.DTO;
+@using BlazorApplication.Services;
+@inject CustomerTableService CustomService;
+@inject ProductTableService ProductService;
+<h2> Your Cusromers</h2>
+<br />
+<br />
+<table>
+    <thead>
+        <tr>
+            <th>ID:      </th>
+            <th>Name:      </th>
+            <th>Age:      </th>
+            <th>Product id: </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var custom in customers)
+        {
+            <tr>
+                <td>@custom.CustomerID</td>
+                <td>@custom.Cus_Name</td>
+                <td>@custom.Cus_Age</td>
+                <td>@custom.Cus_Product</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+
+
+
+@code {
+    List<CustomerTableDTO> customers = new();
+    protected override void OnInitialized()
+    {
+        customers = CustomService.GetAllCustomers();
+    }
+}
